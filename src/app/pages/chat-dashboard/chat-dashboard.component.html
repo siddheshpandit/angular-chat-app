@@ -1,0 +1,125 @@
+<div class="container-fluid" *ngIf="authService.LoggedInStatus && currentUser">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-md-4">
+        <!-- Display User List -->
+        <div class="text-center mt-3">
+          <app-user-list
+            (startChatEmitter)="startChatParent($event)"
+          ></app-user-list>
+          <h3>{{ currentUser.displayName }}</h3>
+          <button class="btn btn-danger btn-sm" (click)="logout()">
+            Logout
+          </button>
+          <button
+            *ngIf="!currentUser.emailVerified"
+            class="btn btn-secondary btn-sm"
+          >
+            Verify Email
+          </button>
+        </div>
+      </div>
+      <div class="col-md-8">
+        <div *ngIf="toUser">
+          <!-- Display Chat -->
+          <div class="text-white">
+            <p class="mt-3">
+              You're Chatting with: <b>{{ toUser.displayName }}</b>
+            </p>
+          </div>
+          <div class="messages" #messageBox>
+            <ng-container *ngFor="let chat of chats">
+              <ng-container
+                [ngTemplateOutlet]="
+                  chat.from === this.currentUser.uid ? chatFrom : chatTo
+                "
+                [ngTemplateOutletContext]="{chat:chat,user:chat.from === this.currentUser.uid?this.currentUser:toUser}"
+              >
+              </ng-container>
+            </ng-container>
+          </div>
+
+          <div class="mt-3">
+            <form (ngSubmit)="sentMessage($event)">
+              <div class="input-group">
+                <input
+                  type="text"
+                  placeholder="Message"
+                  name="message"
+                  id="message"
+                  class="form-control"
+                  [(ngModel)]="message"
+                />
+                <button type="submit" class="btn btn-success btn-sm">
+                  Send
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- From Message Box -->
+<ng-template #chatFrom let-chat="chat" let-user="user">
+  <div class="d-flex justify-content-end">
+    <div class="card mask-custom text-white" style="max-width: 50%">
+      <div
+        class="pt-3 px-3 pb-0"
+        style="border-bottom: 1px solid rgba(255, 255, 255, 0.3)"
+      >
+        <p class="fw-bold mb-0">{{ user.displayName }}</p>
+        <p>
+          <i class="far fa-clock"></i
+          ><span class="ms-1">{{
+            chat.date | date : "dd/mm/yyyy hh:mm:ss"
+          }}</span>
+        </p>
+      </div>
+
+      <div class="card-body">
+        <p class="mb-0">
+          <span>{{ chat.message }}</span>
+        </p>
+      </div>
+    </div>
+    <img
+      [src]="user.imageUrl"
+      class="rounded-circle d-flex align-self-start ms-3 shadow-1-strong"
+      width="60"
+    />
+  </div>
+</ng-template>
+<!-- To Message Box -->
+
+<ng-template #chatTo let-chat="chat" let-user="user">
+  <div class="d-flex justify-content-start">
+    <img
+      [src]="user.imageUrl"
+      class="rounded-circle d-flex align-self-start me-3 shadow-1-strong"
+      width="60"
+    />
+    <div class="card mask-custom text-white" style="max-width: 50%">
+      <div
+        class="pt-3 px-3 pb-0"
+        style="border-bottom: 1px solid rgba(255, 255, 255, 0.3)"
+      >
+        <p class="fw-bold mb-0">{{ user.displayName }}</p>
+        <p>
+          <i class="far fa-clock"></i
+          ><span class="ms-1">{{
+            chat.date | date : "dd/mm/yyyy hh:mm:ss"
+          }}</span>
+        </p>
+      </div>
+
+      <div class="card-body">
+        <p class="mb-0">
+          <span>{{ chat.message }}</span>
+        </p>
+      </div>
+    </div>
+  </div>
+</ng-template>
